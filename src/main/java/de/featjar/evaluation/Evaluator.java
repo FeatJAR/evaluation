@@ -77,6 +77,7 @@ public abstract class Evaluator implements ICommand {
     public Path modelPath;
     public Path resourcePath;
     public Path csvPath;
+    public Path dataPath;
     public Path genPath;
     public Path tempPath;
     public List<String> systemNames;
@@ -156,7 +157,7 @@ public abstract class Evaluator implements ICommand {
                 String value = String.valueOf(optionParser.getResult(opt).orElse(null));
                 String isDefaultValue = optionParser.has(opt) ? "" : " (default)";
                 properties.put(name, value);
-                FeatJAR.log().info("%s: %s%s", name, value, isDefaultValue);
+                FeatJAR.log().info("\t%-20s: %s%s", name, value, isDefaultValue);
             }
             properties.store(Files.newOutputStream(csvPath.resolve("config.properties")), null);
 
@@ -164,6 +165,7 @@ public abstract class Evaluator implements ICommand {
         } catch (final Exception e) {
             FeatJAR.log().error(e);
         } finally {
+            FeatJAR.log().dispose();
             dispose();
         }
     }
@@ -194,7 +196,8 @@ public abstract class Evaluator implements ICommand {
 
     protected void initSubPaths() {
         outputPath = outputRootPath.resolve(readCurrentOutputMarker());
-        csvPath = outputPath.resolve("data").resolve("data-" + getTimeStamp());
+        dataPath = outputPath.resolve("data");
+        csvPath = dataPath.resolve("data-" + getTimeStamp());
         tempPath = outputPath.resolve("temp");
         genPath = outputPath.resolve("gen");
     }
@@ -202,6 +205,7 @@ public abstract class Evaluator implements ICommand {
     protected void setupDirectories() throws IOException {
         try {
             createDir(outputPath);
+            createDir(dataPath);
             createDir(csvPath);
             createDir(genPath);
             createDir(tempPath);
@@ -253,5 +257,17 @@ public abstract class Evaluator implements ICommand {
         csvWriter.setHeaderFields(csvHeader);
         csvWriter.flush();
         return csvWriter;
+    }
+
+    public static int readMaxCSVId(final Path csvFile) {
+        try {
+            return CSVFile.readAllLines(csvFile)
+                    .skip(1)
+                    .mapToInt(l -> Integer.parseInt(l.get(0)))
+                    .max()
+                    .orElse(-1);
+        } catch (IOException e) {
+            return -1;
+        }
     }
 }

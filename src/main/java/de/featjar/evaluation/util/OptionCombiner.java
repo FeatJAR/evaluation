@@ -40,9 +40,7 @@ public class OptionCombiner {
 
     public final <T extends OptionCombiner> void loopOverOptions(Consumer<Integer> forEachOption) {
         Objects.requireNonNull(progress, () -> "Call init method first!");
-        FeatJAR.log().info("Start");
-        String string = printOptionNames(options);
-        FeatJAR.log().info(string);
+        FeatJAR.log().info(printOptionNames(options));
 
         while (progress.hasNext()) {
             FeatJAR.log().info(progress::nextAndPrint);
