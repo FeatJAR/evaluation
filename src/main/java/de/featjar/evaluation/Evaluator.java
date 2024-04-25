@@ -65,6 +65,8 @@ public abstract class Evaluator implements ICommand {
     public static final Option<Long> timeout = new Option<>("timeout", Option.LongParser, Long.MAX_VALUE);
     public static final Option<Long> randomSeed = new Option<>("seed", Option.LongParser);
 
+    public static final Option<Boolean> overwrite = new Option<>("overwrite", Option.BooleanParser, Boolean.FALSE);
+
     public static final ListOption<String> systemsOption = new ListOption<>("systems", Option.StringParser);
     public static final RangeOption systemIterationsOption = new RangeOption("systemIterations");
     public static final RangeOption algorithmIterationsOption = new RangeOption("algorithmIterations");
@@ -92,6 +94,7 @@ public abstract class Evaluator implements ICommand {
                 resourcesPathOption,
                 timeout,
                 randomSeed,
+                overwrite,
                 systemsOption,
                 systemIterationsOption,
                 algorithmIterationsOption);
