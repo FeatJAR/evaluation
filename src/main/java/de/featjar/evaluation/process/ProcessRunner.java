@@ -42,7 +42,7 @@ public class ProcessRunner {
             System.gc();
             algorithm.preProcess();
 
-            //            FeatJAR.log().debug(algorithm.getCommand());
+            FeatJAR.log().debug(algorithm.getCommand());
 
             final List<String> command = algorithm.getCommandElements();
             if (!command.isEmpty()) {
@@ -75,7 +75,7 @@ public class ProcessRunner {
                     if (process != null) {
                         process.destroyForcibly();
                     }
-                    FeatJAR.log().info("In time: " + terminatedInTime + ", no error: " + noError);
+                    FeatJAR.log().debug("In time: " + terminatedInTime + ", no error: " + noError);
                 }
             } else {
                 result.setTerminatedInTime(false);

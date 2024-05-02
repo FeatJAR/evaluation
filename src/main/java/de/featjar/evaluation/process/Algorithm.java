@@ -31,16 +31,22 @@ public abstract class Algorithm<R> implements IOutputReader {
 
     protected final ArrayList<String> commandElements = new ArrayList<>();
 
-    public abstract void postProcess() throws Exception;
-
-    public abstract R parseResults() throws IOException;
+    public void postProcess() throws Exception {}
 
     @Override
     public void readOutput(String line) throws Exception {}
 
-    public abstract String getName();
+    public R parseResults() throws IOException {
+        return null;
+    }
 
-    public abstract String getParameterSettings();
+    public String getName() {
+        return getClass().getName();
+    }
+
+    public String getParameterSettings() {
+        return "";
+    }
 
     public void preProcess() throws Exception {
         commandElements.clear();
