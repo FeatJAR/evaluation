@@ -20,8 +20,7 @@
  */
 package de.featjar.evaluation.process;
 
-// TODO Rename, ReturnValue?
-public class Result<R> {
+public class ProcessResult<R> {
 
     public static long INVALID_TIME = -1;
 
