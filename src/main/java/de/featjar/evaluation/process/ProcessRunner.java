@@ -33,8 +33,8 @@ public class ProcessRunner {
 
     private long timeout = Long.MAX_VALUE;
 
-    public <R> Result<R> run(Algorithm<R> algorithm) {
-        final Result<R> result = new Result<>();
+    public <R> ProcessResult<R> run(Algorithm<R> algorithm) {
+        final ProcessResult<R> result = new ProcessResult<>();
         boolean terminatedInTime = false;
         boolean noError = false;
         long startTime = 0, endTime = 0;
@@ -42,7 +42,7 @@ public class ProcessRunner {
             System.gc();
             algorithm.preProcess();
 
-            //            FeatJAR.log().debug(algorithm.getCommand());
+            FeatJAR.log().debug(algorithm.getCommand());
 
             final List<String> command = algorithm.getCommandElements();
             if (!command.isEmpty()) {
@@ -75,19 +75,19 @@ public class ProcessRunner {
                     if (process != null) {
                         process.destroyForcibly();
                     }
-                    FeatJAR.log().info("In time: " + terminatedInTime + ", no error: " + noError);
+                    FeatJAR.log().debug("In time: " + terminatedInTime + ", no error: " + noError);
                 }
             } else {
                 result.setTerminatedInTime(false);
                 result.setNoError(false);
-                result.setTime(Result.INVALID_TIME);
+                result.setTime(ProcessResult.INVALID_TIME);
                 FeatJAR.log().info("Invalid command");
             }
         } catch (final Exception e) {
             FeatJAR.log().error(e);
             result.setTerminatedInTime(false);
             result.setNoError(false);
-            result.setTime(Result.INVALID_TIME);
+            result.setTime(ProcessResult.INVALID_TIME);
         }
         try {
             if (terminatedInTime && noError) {
