@@ -35,4 +35,9 @@ public class OutputCleaner extends Evaluator {
         Files.deleteIfExists(outputRootPath.resolve(".current"));
         FeatJAR.log().info("Reset current output path.");
     }
+
+    @Override
+    public String getShortName() {
+        return "output-cleaner-evaluation";
+    }
 }
