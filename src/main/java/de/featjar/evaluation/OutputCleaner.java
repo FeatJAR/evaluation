@@ -22,6 +22,7 @@ package de.featjar.evaluation;
 
 import de.featjar.base.FeatJAR;
 import java.nio.file.Files;
+import java.util.Optional;
 
 /**
  * Reset current output path.
@@ -37,7 +38,7 @@ public class OutputCleaner extends Evaluator {
     }
 
     @Override
-    public String getShortName() {
-        return "output-cleaner-evaluation";
+    public Optional<String> getShortName() {
+        return Optional.of("output-cleaner-evaluation");
     }
 }
