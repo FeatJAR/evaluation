@@ -104,7 +104,7 @@ public class ProgressTracker implements Iterator<int[]> {
         return indices;
     }
 
-    public Integer getLastChanged() {
+    public int getLastChanged() {
         return lastIndexChanged;
     }
 }

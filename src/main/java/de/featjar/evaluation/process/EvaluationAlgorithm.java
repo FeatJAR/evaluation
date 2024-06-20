@@ -31,11 +31,15 @@ public abstract class EvaluationAlgorithm extends Algorithm<Void> {
     private final Path time;
 
     public EvaluationAlgorithm(String jarName, String command, Path input, Path output) {
+        this(jarName, command, input, output, output.resolveSibling("time"));
+    }
+
+    public EvaluationAlgorithm(String jarName, String command, Path input, Path output, Path time) {
         this.jarName = jarName;
         this.command = command;
         this.input = input;
         this.output = output;
-        this.time = output.resolveSibling("time");
+        this.time = time;
     }
 
     @Override
@@ -45,6 +49,10 @@ public abstract class EvaluationAlgorithm extends Algorithm<Void> {
         commandElements.add(String.format("build/libs/%s.jar", jarName));
         commandElements.add("--command");
         commandElements.add(command);
+        commandElements.add("--log-info");
+        commandElements.add("message");
+        commandElements.add("--log-error");
+        commandElements.add("error");
         commandElements.add("--input");
         commandElements.add(input.toString());
         commandElements.add("--output");

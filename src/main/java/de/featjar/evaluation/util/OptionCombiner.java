@@ -25,7 +25,7 @@ import de.featjar.base.cli.AListOption;
 import de.featjar.base.cli.ListOption;
 import de.featjar.base.cli.OptionList;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Iterates over a list of {@link ListOption list options}.
@@ -37,34 +37,6 @@ public class OptionCombiner {
     private OptionList optionParser;
     private AListOption<?>[] options;
     private ProgressTracker progress;
-
-    public final <T extends OptionCombiner> void loopOverOptions(Consumer<Integer> forEachOption) {
-        Objects.requireNonNull(progress, () -> "Call init method first!");
-        FeatJAR.log().info(printOptionNames(options));
-
-        while (progress.hasNext()) {
-            FeatJAR.log().info(progress::nextAndPrint);
-            forEachOption.accept(progress.getLastChanged());
-        }
-    }
-
-    private String printOptionNames(AListOption<?>... loptions) {
-        StringBuilder optionMessage = new StringBuilder();
-        int[] sizes = progress.getSizes();
-        for (int i = 0; i < sizes.length; i++) {
-            optionMessage.append(loptions[i].getName());
-            optionMessage.append(String.format("(%d) ", sizes[i]));
-        }
-        return optionMessage.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getValue(int index) {
-        int optionIndex = progress.getIndices()[index];
-        return optionIndex < 0
-                ? null
-                : (T) optionParser.getResult(options[index]).orElseThrow().get(optionIndex);
-    }
 
     public OptionCombiner(OptionList parser) {
         this.optionParser = parser;
@@ -83,5 +55,58 @@ public class OptionCombiner {
             sizes[i] = size;
         }
         progress = new ProgressTracker(sizes);
+    }
+
+    public final <T extends OptionCombiner> void loopOverOptions(Function<Integer, Boolean> forEachOption) {
+        Objects.requireNonNull(progress, () -> "Call init method first!");
+        FeatJAR.log().info(printOptionNames(options));
+
+        int lastError = -1;
+        while (progress.hasNext()) {
+            if (lastError < 0) {
+                FeatJAR.log().info(progress::nextAndPrint);
+            } else {
+                while (progress.hasNext()) {
+                    progress.next();
+                    if (progress.getLastChanged() <= lastError) {
+                        lastError = -1;
+                        FeatJAR.log().info(progress::printStatus);
+                        break;
+                    }
+                }
+                if (!progress.hasNext()) {
+                    break;
+                }
+            }
+
+            boolean success;
+            try {
+                success = forEachOption.apply(progress.getLastChanged());
+            } catch (Exception e) {
+                FeatJAR.log().error(e);
+                success = false;
+            }
+            if (!success) {
+                lastError = progress.getLastChanged();
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getValue(int index) {
+        int optionIndex = progress.getIndices()[index];
+        return optionIndex < 0
+                ? null
+                : (T) optionParser.getResult(options[index]).orElseThrow().get(optionIndex);
+    }
+
+    private String printOptionNames(AListOption<?>... loptions) {
+        StringBuilder optionMessage = new StringBuilder();
+        int[] sizes = progress.getSizes();
+        for (int i = 0; i < sizes.length; i++) {
+            optionMessage.append(loptions[i].getName());
+            optionMessage.append(String.format("(%d) ", sizes[i]));
+        }
+        return optionMessage.toString();
     }
 }
