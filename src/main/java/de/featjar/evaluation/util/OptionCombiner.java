@@ -57,37 +57,41 @@ public class OptionCombiner {
         progress = new ProgressTracker(sizes);
     }
 
-    public final <T extends OptionCombiner> void loopOverOptions(Function<Integer, Boolean> forEachOption) {
+    /**
+     * Executes an operation for each combination of all option values.
+     *
+     * @param forEachOption The function to be executed for each option combination.
+     *     Should return -1 in case of a successful run.
+     *     Otherwise it should return the index of the option at which the problem was detected.
+     *     The function may also deliberately return a lower index, if runs with the different values of the current options should be skipped.
+     */
+    public final void loopOverOptions(Function<Integer, Integer> forEachOption) {
         Objects.requireNonNull(progress, () -> "Call init method first!");
         FeatJAR.log().info(printOptionNames(options));
 
-        int lastError = -1;
+        int lastErrorLevel = -1;
         while (progress.hasNext()) {
-            if (lastError < 0) {
+            if (lastErrorLevel < 0) {
                 FeatJAR.log().info(progress::nextAndPrint);
             } else {
-                while (progress.hasNext()) {
+                do {
                     progress.next();
-                    if (progress.getLastChanged() <= lastError) {
-                        lastError = -1;
+                    if (progress.getLastChanged() <= lastErrorLevel) {
+                        lastErrorLevel = -1;
                         FeatJAR.log().info(progress::printStatus);
                         break;
                     }
-                }
-                if (!progress.hasNext()) {
+                } while (progress.hasNext());
+                if (lastErrorLevel < 0) {
                     break;
                 }
             }
 
-            boolean success;
             try {
-                success = forEachOption.apply(progress.getLastChanged());
+                lastErrorLevel = forEachOption.apply(progress.getLastChanged());
             } catch (Exception e) {
                 FeatJAR.log().error(e);
-                success = false;
-            }
-            if (!success) {
-                lastError = progress.getLastChanged();
+                lastErrorLevel = 0;
             }
         }
     }
