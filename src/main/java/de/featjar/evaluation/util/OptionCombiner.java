@@ -82,7 +82,7 @@ public class OptionCombiner {
                         break;
                     }
                 } while (progress.hasNext());
-                if (lastErrorLevel < 0) {
+                if (lastErrorLevel >= 0) {
                     break;
                 }
             }
