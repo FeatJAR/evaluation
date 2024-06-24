@@ -57,17 +57,25 @@ public abstract class Evaluator implements ICommand {
 
     public static final Option<Path> modelsPathOption = new Option<>("models", Option.PathParser)
             .setDefaultValue(Path.of("models"))
+            .setDescription("Path to feature model files.")
             .setValidator(Option.PathValidator);
     public static final Option<Path> resourcesPathOption = new Option<>("resources", Option.PathParser)
             .setDefaultValue(Path.of("resources"))
+            .setDescription("Path to other resources necessary for the evaluation.")
             .setValidator(Option.PathValidator);
 
-    public static final Option<Long> timeout = new Option<>("timeout", Option.LongParser, Long.MAX_VALUE);
-    public static final Option<Long> randomSeed = new Option<>("seed", Option.LongParser);
+    public static final Option<Long> timeout = new Option<>("timeout", Option.LongParser, Long.MAX_VALUE)
+            .setDescription("The timeout value for individual runs in seconds.");
+    public static final Option<Integer> memory = new Option<>("memory", Option.IntegerParser, -1)
+            .setDescription(
+                    "The max memory used by started Java processes in gigabytes. Sets the JVM -Xmx parameter of started java process. A negative value defaults to the standard value for the JVM. (Does not affect the memory of this process!)");
+    public static final Option<Long> randomSeed =
+            new Option<>("seed", Option.LongParser).setDescription("The seed used by some random operations.");
 
     public static final Option<Boolean> overwrite = new Option<>("overwrite", Option.BooleanParser, Boolean.FALSE);
 
-    public static final ListOption<String> systemsOption = new ListOption<>("systems", Option.StringParser);
+    public static final Option<List<String>> systemsOption = new ListOption<>("systems", Option.StringParser)
+            .setDescription("The systems considered in the evaluation.");
     public static final RangeOption systemIterationsOption = new RangeOption("systemIterations");
     public static final RangeOption algorithmIterationsOption = new RangeOption("algorithmIterations");
 

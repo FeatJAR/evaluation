@@ -29,6 +29,7 @@ public abstract class EvaluationAlgorithm extends Algorithm<Void> {
     private final Path input;
     private final Path output;
     private final Path time;
+    private int memory = -1;
 
     public EvaluationAlgorithm(String jarName, String command, Path input, Path output) {
         this(jarName, command, input, output, output.resolveSibling("time"));
@@ -42,9 +43,16 @@ public abstract class EvaluationAlgorithm extends Algorithm<Void> {
         this.time = time;
     }
 
+    public void setMemory(int memory) {
+        this.memory = memory;
+    }
+
     @Override
     protected void addCommandElements() throws Exception {
         commandElements.add("java");
+        if (memory >= 0) {
+            commandElements.add(String.format("-Xmx%dg", memory));
+        }
         commandElements.add("-jar");
         commandElements.add(String.format("build/libs/%s.jar", jarName));
         commandElements.add("--command");
