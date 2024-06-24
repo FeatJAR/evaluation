@@ -65,7 +65,7 @@ public abstract class Evaluator implements ICommand {
             .setValidator(Option.PathValidator);
 
     public static final Option<Long> timeout = new Option<>("timeout", Option.LongParser, Long.MAX_VALUE)
-            .setDescription("The timeout value for individual runs in seconds.");
+            .setDescription("The timeout value for individual runs in milliseconds.");
     public static final Option<Integer> memory = new Option<>("memory", Option.IntegerParser, -1)
             .setDescription(
                     "The max memory used by started Java processes in gigabytes. Sets the JVM -Xmx parameter of started java process. A negative value defaults to the standard value for the JVM. (Does not affect the memory of this process!)");
@@ -74,8 +74,9 @@ public abstract class Evaluator implements ICommand {
 
     public static final Option<Boolean> overwrite = new Option<>("overwrite", Option.BooleanParser, Boolean.FALSE);
 
-    public static final Option<List<String>> systemsOption = new ListOption<>("systems", Option.StringParser)
-            .setDescription("The systems considered in the evaluation.");
+    public static final ListOption<String> systemsOption =
+            (ListOption<String>) new ListOption<>("systems", Option.StringParser)
+                    .setDescription("The systems considered in the evaluation.");
     public static final RangeOption systemIterationsOption = new RangeOption("systemIterations");
     public static final RangeOption algorithmIterationsOption = new RangeOption("algorithmIterations");
 
