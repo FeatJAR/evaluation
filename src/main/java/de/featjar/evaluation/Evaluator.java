@@ -102,6 +102,7 @@ public abstract class Evaluator implements ICommand {
                 modelsPathOption,
                 resourcesPathOption,
                 timeout,
+                memory,
                 randomSeed,
                 overwrite,
                 systemsOption,
