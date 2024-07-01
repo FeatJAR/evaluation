@@ -21,7 +21,7 @@
 package de.featjar.evaluation;
 
 import de.featjar.base.FeatJAR;
-import de.featjar.base.cli.ICommand;
+import de.featjar.base.cli.ACommand;
 import de.featjar.base.cli.ListOption;
 import de.featjar.base.cli.Option;
 import de.featjar.base.cli.OptionList;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastian Krieter
  */
-public abstract class Evaluator implements ICommand {
+public abstract class Evaluator extends ACommand {
 
     private static final String DATE_FORMAT_STRING = "yyyy-MM-dd_HH-mm-ss";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
@@ -55,30 +55,30 @@ public abstract class Evaluator implements ICommand {
         return DATE_FORMAT.format(new Timestamp(System.currentTimeMillis()));
     }
 
-    public static final Option<Path> modelsPathOption = new Option<>("models", Option.PathParser)
+    public static final Option<Path> modelsPathOption = Option.newOption("models", Option.PathParser)
             .setDefaultValue(Path.of("models"))
             .setDescription("Path to feature model files.")
             .setValidator(Option.PathValidator);
-    public static final Option<Path> resourcesPathOption = new Option<>("resources", Option.PathParser)
+    public static final Option<Path> resourcesPathOption = Option.newOption("resources", Option.PathParser)
             .setDefaultValue(Path.of("resources"))
             .setDescription("Path to other resources necessary for the evaluation.")
             .setValidator(Option.PathValidator);
 
-    public static final Option<Long> timeout = new Option<>("timeout", Option.LongParser, Long.MAX_VALUE)
+    public static final Option<Long> timeout = Option.newOption("timeout", Option.LongParser, Long.MAX_VALUE)
             .setDescription("The timeout value for individual runs in milliseconds.");
-    public static final Option<Integer> memory = new Option<>("memory", Option.IntegerParser, -1)
+    public static final Option<Integer> memory = Option.newOption("memory", Option.IntegerParser, -1)
             .setDescription(
                     "The max memory used by started Java processes in gigabytes. Sets the JVM -Xmx parameter of started java process. A negative value defaults to the standard value for the JVM. (Does not affect the memory of this process!)");
     public static final Option<Long> randomSeed =
-            new Option<>("seed", Option.LongParser).setDescription("The seed used by some random operations.");
+            Option.newOption("seed", Option.LongParser).setDescription("The seed used by some random operations.");
 
-    public static final Option<Boolean> overwrite = new Option<>("overwrite", Option.BooleanParser, Boolean.FALSE);
+    public static final Option<Boolean> overwrite = Option.newOption("overwrite", Option.BooleanParser, Boolean.FALSE);
 
     public static final ListOption<String> systemsOption =
-            (ListOption<String>) new ListOption<>("systems", Option.StringParser)
+            (ListOption<String>) Option.newListOption("systems", Option.StringParser)
                     .setDescription("The systems considered in the evaluation.");
-    public static final RangeOption systemIterationsOption = new RangeOption("systemIterations");
-    public static final RangeOption algorithmIterationsOption = new RangeOption("algorithmIterations");
+    public static final RangeOption systemIterationsOption = Option.newRangeOption("systemIterations");
+    public static final RangeOption algorithmIterationsOption = Option.newRangeOption("algorithmIterations");
 
     public OptionList optionParser;
     public OptionCombiner optionCombiner;
@@ -93,22 +93,6 @@ public abstract class Evaluator implements ICommand {
     public Path tempPath;
     public List<String> systemNames;
     public List<Integer> systemIDs;
-
-    @Override
-    public List<Option<?>> getOptions() {
-        return List.of(
-                INPUT_OPTION,
-                OUTPUT_OPTION,
-                modelsPathOption,
-                resourcesPathOption,
-                timeout,
-                memory,
-                randomSeed,
-                overwrite,
-                systemsOption,
-                systemIterationsOption,
-                algorithmIterationsOption);
-    }
 
     public OptionList getOptionParser() {
         return optionParser;

@@ -25,6 +25,7 @@ import de.featjar.base.cli.AListOption;
 import de.featjar.base.cli.ListOption;
 import de.featjar.base.cli.OptionList;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -66,6 +67,10 @@ public class OptionCombiner {
      *     The function may also deliberately return a lower index, if runs with the different values of the current options should be skipped.
      */
     public final void loopOverOptions(Function<Integer, Integer> forEachOption) {
+        loopOverOptions(forEachOption, l -> {});
+    }
+
+    public final void loopOverOptions(Function<Integer, Integer> forEachOption, Consumer<Integer> errorHandler) {
         Objects.requireNonNull(progress, () -> "Call init method first!");
         FeatJAR.log().info(printOptionNames(options));
 
@@ -80,6 +85,8 @@ public class OptionCombiner {
                         lastErrorLevel = -1;
                         FeatJAR.log().info(progress::printStatus);
                         break;
+                    } else {
+                        errorHandler.accept(progress.getLastChanged());
                     }
                 } while (progress.hasNext());
                 if (lastErrorLevel >= 0) {
