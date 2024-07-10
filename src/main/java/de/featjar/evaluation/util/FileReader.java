@@ -34,19 +34,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * @author Sebastian Krieter
  */
-public class ModelReader<T> {
+public class FileReader<T> {
 
-    private String defaultFileName = "model.xml";
+    private String defaultFileName = "model";
+    private String defaultFileExtension = "xml";
     private Path pathToFiles;
     private IFormatSupplier<T> formatSupplier;
 
-    public ModelReader(Path pathToFiles, IFormatSupplier<T> formatSupplier) {
+    public FileReader(
+            Path pathToFiles, IFormatSupplier<T> formatSupplier, String defaultFileName, String defaultFileExtension) {
         this.pathToFiles = pathToFiles;
         this.formatSupplier = formatSupplier;
+        this.defaultFileName = defaultFileName;
+        this.defaultFileExtension = defaultFileExtension;
     }
 
     public final Result<T> read(final String name) {
@@ -83,6 +88,14 @@ public class ModelReader<T> {
         this.defaultFileName = defaultFileName;
     }
 
+    public String getDefaultFileExtension() {
+        return defaultFileExtension;
+    }
+
+    public void setDefaultFileExtension(String defaultFileExtension) {
+        this.defaultFileExtension = defaultFileExtension;
+    }
+
     public IFormatSupplier<T> getFormatSupplier() {
         return formatSupplier;
     }
@@ -96,14 +109,14 @@ public class ModelReader<T> {
     }
 
     public Result<T> readFromFolder(final Path rootPath, final String name) {
-        final Path modelFolder = rootPath.resolve(name);
-        FeatJAR.log().debug("Trying to load from folder " + modelFolder);
-        if (Files.exists(modelFolder) && Files.isDirectory(modelFolder)) {
-            final Path path = modelFolder.resolve(defaultFileName);
+        final Path folder = rootPath.resolve(name);
+        FeatJAR.log().debug("Trying to load from folder " + folder);
+        if (Files.exists(folder) && Files.isDirectory(folder)) {
+            final Path path = folder.resolve(defaultFileName + "." + defaultFileExtension);
             if (Files.exists(path)) {
                 return loadFile(path);
             } else {
-                return readFromFile(modelFolder, "model");
+                return readFromFile(folder, defaultFileName);
             }
         } else {
             return Result.empty();
@@ -120,7 +133,7 @@ public class ModelReader<T> {
         }
         final Filter<Path> fileFilter = file -> Files.isReadable(file)
                 && Files.isRegularFile(file)
-                && file.getFileName().toString().matches("^" + name + "\\.\\w+$");
+                && file.getFileName().toString().matches("^" + Pattern.quote(name) + "\\.\\w+$");
         try (DirectoryStream<Path> files = Files.newDirectoryStream(rootPath, fileFilter)) {
             final Iterator<Path> iterator = files.iterator();
             while (iterator.hasNext()) {
