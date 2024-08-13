@@ -43,6 +43,19 @@ public class OptionCombiner {
         this.optionParser = parser;
     }
 
+    /**
+     * Executes an operation for each combination of all option values.
+     *
+     * @param forEachOption The function to be executed for each option combination.
+     *     Should return -1 in case of a successful run.
+     *     Otherwise it should return the index of the option at which the problem was detected.
+     *     The function may also deliberately return a lower index, if runs with the different values of the current options should be skipped.
+     */
+    public final void loopOverOptions(Function<Integer, Integer> forEachOption, AListOption<?>... options) {
+        init(options);
+        loopOverOptions(forEachOption, l -> {});
+    }
+
     public void init(AListOption<?>... options) {
         this.options = options;
 
