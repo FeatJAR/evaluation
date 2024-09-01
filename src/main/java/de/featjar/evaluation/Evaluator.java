@@ -29,6 +29,8 @@ import de.featjar.base.cli.RangeOption;
 import de.featjar.base.io.csv.CSVFile;
 import de.featjar.evaluation.util.OptionCombiner;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,11 +50,8 @@ import java.util.stream.Collectors;
  */
 public abstract class Evaluator extends ACommand {
 
-    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd_HH-mm-ss";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-
-    public String getTimeStamp() {
-        return DATE_FORMAT.format(new Timestamp(System.currentTimeMillis()));
+    public static String getTimeStamp() {
+        return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Timestamp(System.currentTimeMillis()));
     }
 
     public static final Option<Path> modelsPathOption = Option.newOption("models", Option.PathParser)
@@ -92,10 +91,13 @@ public abstract class Evaluator extends ACommand {
     public Path genPath;
     public Path tempPath;
     public List<String> systemNames;
-    public List<Integer> systemIDs;
 
     public OptionList getOptionParser() {
         return optionParser;
+    }
+
+    public int getSystemId(final String modelName) {
+        return systemNames.indexOf(modelName);
     }
 
     public <T> T getOption(Option<T> option) {
@@ -128,7 +130,7 @@ public abstract class Evaluator extends ACommand {
         if (currentOutputMarker == null) {
             currentOutputMarker = getTimeStamp();
             try {
-                Files.write(currentOutputMarkerFile, currentOutputMarker.getBytes());
+                Files.write(currentOutputMarkerFile, currentOutputMarker.getBytes(StandardCharsets.UTF_8));
             } catch (final IOException e) {
                 FeatJAR.log().error(e);
             }
@@ -156,7 +158,9 @@ public abstract class Evaluator extends ACommand {
                 properties.put(name, value);
                 FeatJAR.log().info("\t%-20s: %s%s", name, value, isDefaultValue);
             }
-            properties.store(Files.newOutputStream(csvPath.resolve("config.properties")), null);
+            try (OutputStream newOutputStream = Files.newOutputStream(csvPath.resolve("config.properties"))) {
+                properties.store(newOutputStream, null);
+            }
 
             runEvaluation();
         } catch (final Exception e) {

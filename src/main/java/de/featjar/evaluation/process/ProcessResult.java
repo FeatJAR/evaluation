@@ -22,7 +22,7 @@ package de.featjar.evaluation.process;
 
 public class ProcessResult<R> {
 
-    public static long INVALID_TIME = -1;
+    public static final long INVALID_TIME = -1;
 
     private boolean terminatedInTime = false;
     private boolean noError = false;
