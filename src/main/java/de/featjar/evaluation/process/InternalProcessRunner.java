@@ -22,14 +22,9 @@ package de.featjar.evaluation.process;
 
 import de.featjar.base.FeatJAR;
 import de.featjar.evaluation.streams.ErrStreamCollector;
-import de.featjar.evaluation.streams.ErrStreamReader;
-import de.featjar.evaluation.streams.OutStreamReader;
-import de.featjar.evaluation.streams.StreamRedirector;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public class ProcessRunner implements IProcessRunner {
+public class InternalProcessRunner implements IProcessRunner {
 
     private long timeout = Long.MAX_VALUE;
 
@@ -46,26 +41,13 @@ public class ProcessRunner implements IProcessRunner {
 
             final List<String> command = algorithm.getCommandElements();
             if (!command.isEmpty()) {
-                final ProcessBuilder processBuilder = new ProcessBuilder(command);
                 Process process = null;
 
                 final ErrStreamCollector errStreamCollector = new ErrStreamCollector();
-                final StreamRedirector errRedirector =
-                        new StreamRedirector(Arrays.asList(new ErrStreamReader(), errStreamCollector));
-                final StreamRedirector outRedirector =
-                        new StreamRedirector(Arrays.asList(new OutStreamReader(), algorithm));
-                final Thread outThread = new Thread(outRedirector);
-                final Thread errThread = new Thread(errRedirector);
                 try {
                     startTime = System.nanoTime();
-                    process = processBuilder.start();
+                    FeatJAR.runInternally(command.subList(3, command.size()).toArray(new String[0]));
 
-                    outRedirector.setInputStream(process.getInputStream());
-                    errRedirector.setInputStream(process.getErrorStream());
-                    outThread.start();
-                    errThread.start();
-
-                    terminatedInTime = process.waitFor(timeout, TimeUnit.MILLISECONDS);
                     endTime = System.nanoTime();
                     noError = errStreamCollector.getErrList().isEmpty();
                     result.setTerminatedInTime(terminatedInTime);
