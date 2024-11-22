@@ -141,7 +141,7 @@ public abstract class Evaluator extends ACommand {
     protected abstract void runEvaluation() throws Exception;
 
     @Override
-    public void run(OptionList optionParser) {
+    public int run(OptionList optionParser) {
         this.optionParser = optionParser;
         this.optionCombiner = new OptionCombiner(optionParser);
         try {
@@ -163,8 +163,10 @@ public abstract class Evaluator extends ACommand {
             }
 
             runEvaluation();
+            return 0;
         } catch (final Exception e) {
             FeatJAR.log().error(e);
+            return FeatJAR.ERROR_COMPUTING_RESULT;
         } finally {
             FeatJAR.log().dispose();
             dispose();
