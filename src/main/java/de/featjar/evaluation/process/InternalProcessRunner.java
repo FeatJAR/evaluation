@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 FeatJAR-Development-Team
+ * Copyright (C) 2025 FeatJAR-Development-Team
  *
  * This file is part of FeatJAR-evaluation.
  *
@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Can be used for debugging, in case the called FeatJAR process contains a problem.
- * 
+ *
  * @author Sebastian Krieter
  */
 public class InternalProcessRunner implements IProcessRunner {
